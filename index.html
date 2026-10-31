@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Chào — offline Vietnamese translator</title>
+<meta name="description" content="Offline, on-device Vietnamese ⇄ English voice translator with polite shop-talk.">
+<meta name="theme-color" content="#EEF2EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1A16" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Chào">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+@font-face { font-family: "Be Vietnam Pro"; font-weight: 400; font-display: swap; src: url(bvp-vietnamese-400.woff2) format("woff2"); unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB; }
+@font-face { font-family: "Be Vietnam Pro"; font-weight: 400; font-display: swap; src: url(bvp-latin-400.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Be Vietnam Pro"; font-weight: 600; font-display: swap; src: url(bvp-vietnamese-600.woff2) format("woff2"); unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB; }
+@font-face { font-family: "Be Vietnam Pro"; font-weight: 600; font-display: swap; src: url(bvp-latin-600.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Be Vietnam Pro"; font-weight: 700; font-display: swap; src: url(bvp-vietnamese-700.woff2) format("woff2"); unicode-range: U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB; }
+@font-face { font-family: "Be Vietnam Pro"; font-weight: 700; font-display: swap; src: url(bvp-latin-700.woff2) format("woff2"); unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+
+:root {
+  --paper: #EEF2EC; --surface: #FFFFFF; --ink: #10241D; --muted: #4F6259; --line: #CBD6CE;
+  --sun: #F4B400; --sun-ink: #2A1E00; --sun-soft: #FFF1C2;
+  --stool: #1D46C8; --stool-ink: #FFFFFF; --stool-soft: #E3E9FB;
+  --danger: #B3261E; --ok: #1E7A4C;
+  --r-sm: 10px; --r-lg: 22px;
+  --dock-h: 0px;
+  --font: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0D1A16; --surface: #15261F; --ink: #E8F0EA; --muted: #9DB0A6; --line: #26392F;
+    --sun: #F6C02A; --sun-ink: #241900; --sun-soft: #3A3010;
+    --stool: #4D74F0; --stool-ink: #FFFFFF; --stool-soft: #1B2A55;
+    --danger: #FF8A80; --ok: #6FD3A0; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0D1A16; --surface: #15261F; --ink: #E8F0EA; --muted: #9DB0A6; --line: #26392F;
+  --sun: #F6C02A; --sun-ink: #241900; --sun-soft: #3A3010;
+  --stool: #4D74F0; --stool-ink: #FFFFFF; --stool-soft: #1B2A55;
+  --danger: #FF8A80; --ok: #6FD3A0; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--paper); color: var(--ink); font-family: var(--font);
+  font-size: 16px; line-height: 1.45; -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent; overscroll-behavior: none;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--stool); outline-offset: 2px; }
+.sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+[hidden] { display: none !important; }
+
+/* ---------- Shell ---------- */
+#app { display: flex; flex-direction: column; height: 100dvh; max-width: 640px; margin: 0 auto; }
+header.top {
+  display: flex; align-items: center; gap: 10px;
+  padding: calc(env(safe-area-inset-top) + 10px) 16px 10px;
+}
+.brand { font-weight: 700; font-size: 24px; letter-spacing: -0.02em; margin: 0; line-height: 1; }
+.brand small { font-weight: 400; font-size: 13px; color: var(--muted); letter-spacing: 0; margin-left: 6px; }
+.status {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  font-size: 13px; color: var(--muted); background: transparent; border: 1px solid var(--line);
+  padding: 5px 10px; border-radius: 999px;
+}
+.status i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); display: inline-block; }
+.status[data-state="ready"] i { background: var(--ok); }
+.status[data-state="busy"] i { background: var(--sun); }
+.status[data-state="missing"] i { background: var(--danger); }
+.langswitch {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: 14px; font-weight: 600; white-space: nowrap;
+}
+.price-row input:focus-visible { outline: none; border-bottom-color: var(--stool); }
+
+main { flex: 1; min-height: 0; position: relative; }
+.view { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 16px 24px; }
+
+/* ---------- Tabs ---------- */
+nav.tabs {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--line); background: var(--paper);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+nav.tabs button {
+  background: none; border: 0; padding: 8px 0 9px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  font-size: 12px; color: var(--muted);
+}
+nav.tabs button[aria-selected="true"] { color: var(--ink); font-weight: 600; }
+
+/* ---------- Transcript ---------- */
+#view-talk { padding-bottom: 12px; display: flex; flex-direction: column; }
+.empty { margin: auto 0; padding: 24px 4px; color: var(--muted); }
+.empty h2 { font-size: 21px; color: var(--ink); margin: 0 0 8px; line-height: 1.25; }
+.empty p { margin: 0 0 10px; max-width: 34ch; }
+.turn {
+  margin: 10px 0; padding: 12px 14px 10px; border-radius: var(--r-lg); max-width: 92%;
+  background: var(--surface); border: 1px solid var(--line);
+}
+.turn.in { border-left: 6px solid var(--sun); border-top-left-radius: 6px; }
+.turn.out { margin-left: auto; background: var(--stool-soft); border-color: transparent; border-right: 6px solid var(--stool); border-top-right-radius: 6px; }
+.turn .src { font-size: 14px; color: var(--muted); margin: 0 0 4px; }
+.turn .dst { font-size: 21px; line-height: 1.3; font-weight: 600; margin: 0; overflow-wrap: anywhere; }
+.turn.out .dst { font-size: 23px; }
+.turn .pending { color: var(--muted); font-weight: 400; font-size: 16px; }
+.turn .meta { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.tag { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
+.tag.good { color: var(--ok); border-color: currentColor; }
+.chip-price { font-size: 13px; font-weight: 600; background: var(--sun-soft); color: var(--ink); border-radius: 8px; padding: 3px 8px; }
+.icon-btn {
+  margin-left: auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-width: 40px; height: 36px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--line);
+  background: var(--surface); font-size: 14px;
+}
+.icon-btn + .icon-btn { margin-left: 0; }
+.icon-btn svg.i { width: 18px; height: 18px; }
+.live { color: var(--muted); font-style: italic; min-height: 1.4em; padding: 2px 4px 0; font-size: 17px; }
+.err { color: var(--danger); font-size: 14px; }
+
+/* ---------- Dock ---------- */
+.dock { padding: 8px 16px 10px; background: var(--paper); border-top: 1px solid var(--line); }
+.who { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 0 8px; margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+.who::-webkit-scrollbar { display: none; }
+.who-label { font-size: 13px; color: var(--muted); align-self: center; white-space: nowrap; margin-right: 2px; }
+.who button {
+  flex: none; border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  padding: 6px 12px; font-weight: 600; font-size: 15px; line-height: 1.1; text-align: left;
+}
+.who button span { display: block; font-weight: 400; font-size: 11px; color: var(--muted); }
+.who button[aria-pressed="true"] { background: var(--stool); color: var(--stool-ink); border-color: var(--stool); }
+.who button[aria-pressed="true"] span { color: inherit; opacity: .85; }
+
+.big { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.big button {
+  position: relative; border: 0; border-radius: var(--r-lg); padding: 14px 12px; min-height: 76px;
+  display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; font-size: 18px; line-height: 1.15;
+  text-align: left; overflow: hidden;
+}
+.big button small { display: block; font-weight: 400; font-size: 12px; opacity: .85; }
+.big svg.i { width: 28px; height: 28px; }
+#btnListen { background: var(--sun); color: var(--sun-ink); }
+#btnSpeak { background: var(--stool); color: var(--stool-ink); }
+.big button .meter { position: absolute; left: 0; bottom: 0; height: 5px; width: 0; background: currentColor; opacity: .55; transition: width 60ms linear; }
+.big button[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px currentColor; }
+#btnListen[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--sun); }
+#btnSpeak[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--stool); }
+.big button:disabled { opacity: .45; }
+
+.typebar { display: flex; gap: 8px; margin-top: 10px; }
+.typebar input {
+  flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 11px 16px; font-size: 16px;
+}
+.typebar button { border: 0; border-radius: 999px; width: 46px; background: var(--ink); color: var(--paper); display: grid; place-items: center; }
+
+/* ---------- Phrases ---------- */
+h2.sec { font-size: 17px; margin: 18px 0 8px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px; }
+.price-row { display: flex; gap: 8px; align-items: center; }
+.price-row input { flex: 1; min-width: 0; font-size: 28px; font-weight: 700; border: 0; border-bottom: 2px solid var(--line); background: transparent; padding: 4px 0; }
+.price-row .unit { font-size: 22px; font-weight: 700; color: var(--muted); }
+.price-words { margin: 8px 0 2px; font-size: 17px; font-weight: 600; }
+.price-conv { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+.quick { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 12px; }
+.quick button { border: 1px solid var(--line); background: var(--paper); border-radius: 999px; padding: 5px 10px; font-size: 14px; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn { border: 0; border-radius: 999px; padding: 10px 16px; font-weight: 600; background: var(--ink); color: var(--paper); }
+.btn.alt { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.btn.sun { background: var(--sun); color: var(--sun-ink); }
+.btn.stool { background: var(--stool); color: var(--stool-ink); }
+.search { width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 10px 16px; font-size: 16px; }
+.cats { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 10px -16px 4px; padding: 0 16px; }
+.cats::-webkit-scrollbar { display: none; }
+.cats button { flex: none; border: 1px solid var(--line); background: transparent; border-radius: 999px; padding: 6px 12px; font-size: 14px; }
+.cats button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.phrase { display: flex; align-items: center; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.phrase > button.say { flex: 1; text-align: left; background: none; border: 0; padding: 0; }
+.phrase .en { display: block; font-size: 14px; color: var(--muted); }
+.phrase .vi { display: block; font-size: 19px; font-weight: 600; line-height: 1.3; }
+
+/* ---------- Settings ---------- */
+.set { margin: 0 0 14px; }
+.set > label, .set > .lbl { display: block; font-weight: 600; margin-bottom: 4px; }
+.set .help { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+.set select, .set input[type="number"], .set input[type="text"] {
+  width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: var(--r-sm); padding: 10px 12px; font-size: 16px;
+}
+.seg { display: flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.seg button { flex: 1; border: 0; background: none; padding: 9px 6px; font-size: 14px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); font-weight: 600; }
+.toggle { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.toggle div { flex: 1; }
+.toggle b { display: block; font-weight: 600; }
+.toggle small { color: var(--muted); font-size: 13px; }
+.toggle input { width: 22px; height: 22px; accent-color: var(--stool); }
+input[type="range"] { width: 100%; accent-color: var(--stool); }
+
+.pack { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.pack-head { display: flex; align-items: center; gap: 10px; }
+.pack-head b { flex: 1; font-weight: 600; }
+.pack-head .size { font-size: 13px; color: var(--muted); white-space: nowrap; }
+.pack p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.bar i { display: block; height: 100%; width: 0; background: var(--stool); transition: width .2s; }
+.pack .state { font-size: 13px; font-weight: 600; }
+.pack .state.ok { color: var(--ok); }
+.note { background: var(--sun-soft); border-radius: var(--r-sm); padding: 10px 12px; font-size: 14px; margin: 10px 0; }
+.note.bad { background: transparent; border: 1px solid var(--danger); color: var(--ink); }
+
+/* ---------- Setup ---------- */
+#setup { position: fixed; inset: 0; background: var(--paper); z-index: 20; overflow-y: auto; }
+#setup .inner { max-width: 560px; margin: 0 auto; padding: calc(env(safe-area-inset-top) + 24px) 20px calc(env(safe-area-inset-bottom) + 32px); }
+#setup h1 { font-size: 44px; line-height: 1; letter-spacing: -0.03em; margin: 0 0 6px; }
+#setup .lede { font-size: 17px; color: var(--muted); margin: 0 0 20px; max-width: 36ch; }
+#setup h2 { font-size: 19px; margin: 26px 0 8px; }
+
+/* ---------- Show to shopkeeper ---------- */
+#show {
+  position: fixed; inset: 0; z-index: 30; background: var(--sun); color: var(--sun-ink);
+  display: flex; flex-direction: column; padding: calc(env(safe-area-inset-top) + 16px) 20px calc(env(safe-area-inset-bottom) + 16px);
+}
+#show .face { flex: 1; display: flex; flex-direction: column; justify-content: center; transition: transform .35s ease; }
+#show.flipped .face { transform: rotate(180deg); }
+#show .vi { font-size: clamp(34px, 10vw, 64px); font-weight: 700; line-height: 1.12; letter-spacing: -0.015em; margin: 0; overflow-wrap: anywhere; }
+#show .en { font-size: 17px; margin: 18px 0 0; opacity: .8; }
+#show .bar2 { display: flex; gap: 10px; }
+#show .bar2 button { flex: 1; border: 2px solid var(--sun-ink); background: transparent; color: var(--sun-ink); border-radius: 999px; padding: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; }
+#show .bar2 button.solid { background: var(--sun-ink); color: var(--sun); }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 170px); transform: translateX(-50%);
+  background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 999px; font-size: 14px; z-index: 40; max-width: 90vw; text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media (min-width: 700px) { body { font-size: 17px; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-ear" viewBox="0 0 24 24"><path d="M6 15V11a6 6 0 0 1 12 0v4"/><rect x="3" y="14" width="5" height="7" rx="2"/><rect x="16" y="14" width="5" height="7" rx="2"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></symbol>
+  <symbol id="i-show" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></symbol>
+  <symbol id="i-flip" viewBox="0 0 24 24"><path d="M4 7h13l-3-3M20 17H7l3 3"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></symbol>
+</svg>
+
+<div id="app">
+  <header class="top">
+    <h1 class="brand">Chào</h1>
+    <button id="status" class="status" data-state="busy" type="button"><i></i><span>Starting…</span></button>
+    <button id="theirLang" class="langswitch" type="button" aria-label="Language they speak">Tiếng Việt</button>
+  </header>
+
+  <main>
+    <!-- TALK -->
+    <section id="view-talk" class="view" aria-label="Conversation">
+      <div id="empty" class="empty">
+        <h2>Point your phone at the shopkeeper and tap Listen.</h2>
+        <p>Their Vietnamese is translated into your earphones. Tap Speak or type in English to answer — the app replies out loud in polite, friendly Vietnamese.</p>
+        <p>Pick who you’re talking to below so the app uses the right words for “you” and “I”.</p>
+      </div>
+      <div id="transcript" aria-live="polite"></div>
+      <div id="live" class="live" aria-live="off"></div>
+    </section>
+
+    <!-- PHRASES -->
+    <section id="view-phrases" class="view" aria-label="Phrases" hidden>
+      <h2 class="sec">Prices</h2>
+      <div class="card">
+        <label class="sr" for="priceInput">Price in dong</label>
+        <div class="price-row">
+          <input id="priceInput" inputmode="numeric" autocomplete="off" placeholder="150" aria-describedby="priceWords">
+          <span class="unit">.000 ₫</span>
+        </div>
+        <p id="priceWords" class="price-words">Type a price in thousands of dong</p>
+        <p id="priceConv" class="price-conv"></p>
+        <div class="quick" id="priceQuick">
+          <button type="button" data-add="10">+10k</button><button type="button" data-add="50">+50k</button>
+          <button type="button" data-add="100">+100k</button><button type="button" data-add="-10">−10k</button><button type="button" data-clear>Clear</button>
+        </div>
+        <div class="actions">
+          <button id="priceOffer" class="btn stool" type="button">Offer this price</button>
+          <button id="priceSay" class="btn alt" type="button">Say it</button>
+          <button id="priceShow" class="btn alt" type="button">Show</button>
+        </div>
+      </div>
+
+      <h2 class="sec">Phrases</h2>
+      <input id="phraseSearch" class="search" type="search" placeholder="Search phrases" aria-label="Search phrases">
+      <div id="phraseCats" class="cats" role="group" aria-label="Phrase categories"></div>
+      <div id="phraseList"></div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="view-settings" class="view" aria-label="Settings" hidden>
+      <h2 class="sec">How you sound</h2>
+      <div class="set">
+        <span class="lbl">When I talk to someone younger, I call myself</span>
+        <div class="seg" data-setting="myGender">
+          <button type="button" data-v="m">anh (I’m a man)</button><button type="button" data-v="f">chị (I’m a woman)</button><button type="button" data-v="n">tôi</button>
+        </div>
+      </div>
+      <div class="set">
+        <span class="lbl">Region</span>
+        <div class="seg" data-setting="region">
+          <button type="button" data-v="n">North · Hà Nội</button><button type="button" data-v="s">South · Sài Gòn</button>
+        </div>
+        <p class="help">Changes words like nghìn/ngàn and đắt/mắc. Both are understood everywhere.</p>
+      </div>
+      <label class="toggle"><div><b>Friendly-polite tone</b><small>Adds “ạ” and “dạ” and turns stiff “vui lòng…” into natural requests. Pronouns always follow “Talking to”.</small></div><input type="checkbox" data-setting="polite"></label>
+
+      <h2 class="sec">Listening</h2>
+      <label class="toggle"><div><b>I’m wearing earphones</b><small>Keep listening while English plays in your ears. Turn off if sound comes from the phone speaker.</small></div><input type="checkbox" data-setting="earphones"></label>
+      <label class="toggle"><div><b>Keep listening after each sentence</b><small>Off = Listen stops after one sentence (better in very noisy markets).</small></div><input type="checkbox" data-setting="continuous"></label>
+      <label class="toggle"><div><b>Live captions while they talk</b><small>Shows words as they speak. Uses more battery.</small></div><input type="checkbox" data-setting="liveCaptions"></label>
+      <div class="set" style="margin-top:12px">
+        <label for="pauseMs">Pause before translating: <span id="pauseVal"></span></label>
+        <input id="pauseMs" type="range" min="400" max="1500" step="100" data-setting="pauseMs">
+        <p class="help">Shorter = faster, but may cut people off mid-sentence.</p>
+      </div>
+      <div class="set">
+        <span class="lbl">Vietnamese recognition</span>
+        <div class="seg" data-setting="asrSize"><button type="button" data-v="base">Accurate</button><button type="button" data-v="tiny">Fast (older phones)</button></div>
+        <p class="help">Fast needs its own ~35 MB download in Offline packs.</p>
+      </div>
+      <div class="set">
+        <label for="micSelect">Microphone</label>
+        <select id="micSelect" data-setting="micId"><option value="">Default</option></select>
+        <p class="help">With Bluetooth earbuds, pick the phone’s own microphone so it hears the shopkeeper, not just you.</p>
+      </div>
+
+      <h2 class="sec">Voices</h2>
+      <div class="set"><label for="voiceVi">Vietnamese voice</label><select id="voiceVi" data-setting="voiceVi"></select><div id="voiceViNote"></div></div>
+      <div class="set"><label for="rateVi">Vietnamese speed</label><input id="rateVi" type="range" min="0.6" max="1.3" step="0.05" data-setting="rateVi"></div>
+      <div class="set"><label for="voiceEn">English voice (in your ears)</label><select id="voiceEn" data-setting="voiceEn"></select></div>
+      <div class="set"><label for="rateEn">English speed</label><input id="rateEn" type="range" min="0.7" max="1.5" step="0.05" data-setting="rateEn"></div>
+      <div class="set">
+        <span class="lbl">Built-in backup Vietnamese voice</span>
+        <div class="seg" data-setting="backupVoice">
+          <button type="button" data-v="auto">If needed</button><button type="button" data-v="always">Always</button><button type="button" data-v="never">Never</button>
+        </div>
+        <p class="help">A small on-device voice used when your phone has no Vietnamese voice installed.</p>
+      </div>
+      <div class="set actions"><button id="testVoices" class="btn alt" type="button">Test voices</button></div>
+
+      <h2 class="sec">Money</h2>
+      <div class="set" style="display:flex;gap:8px">
+        <div style="flex:1"><label for="currency">Your currency</label><input id="currency" type="text" maxlength="4" data-setting="currency"></div>
+        <div style="flex:2"><label for="rate">1 of it = how many ₫</label><input id="rate" type="number" min="1" step="0.1" data-setting="rate"></div>
+      </div>
+
+      <h2 class="sec">Offline packs</h2>
+      <div id="packs"></div>
+      <p id="storageNote" class="help"></p>
+
+      <h2 class="sec">Speed boosts (if your browser has them)</h2>
+      <div id="boosts"></div>
+
+      <h2 class="sec">Other</h2>
+      <div class="set">
+        <span class="lbl">Theme</span>
+        <div class="seg" data-setting="theme"><button type="button" data-v="auto">Auto</button><button type="button" data-v="light">Light</button><button type="button" data-v="dark">Dark</button></div>
+      </div>
+      <div class="actions"><button id="clearChat" class="btn alt" type="button">Clear conversation</button><button id="rerunSetup" class="btn alt" type="button">Run setup again</button></div>
+      <p id="engineInfo" class="help" style="margin-top:14px"></p>
+    </section>
+  </main>
+
+  <div class="dock" id="dock">
+    <div class="who" id="who" role="group" aria-label="Who are you talking to?"><span class="who-label">Talking to</span></div>
+    <div class="big">
+      <button id="btnListen" type="button" aria-pressed="false"><svg class="i"><use href="#i-ear"/></svg><span><span class="t">Listen</span><small>They speak</small></span><i class="meter"></i></button>
+      <button id="btnSpeak" type="button" aria-pressed="false"><svg class="i"><use href="#i-mic"/></svg><span><span class="t">Speak</span><small>I speak English</small></span><i class="meter"></i></button>
+    </div>
+    <form class="typebar" id="typeForm" autocomplete="off">
+      <label class="sr" for="typeInput">Type a message</label>
+      <input id="typeInput" type="text" enterkeyhint="send" placeholder="Type in English…">
+      <button type="submit" aria-label="Translate and speak"><svg class="i"><use href="#i-send"/></svg></button>
+    </form>
+  </div>
+
+  <nav class="tabs" role="tablist">
+    <button type="button" role="tab" data-view="talk" aria-selected="true"><svg class="i"><use href="#i-chat"/></svg>Talk</button>
+    <button type="button" role="tab" data-view="phrases" aria-selected="false"><svg class="i"><use href="#i-book"/></svg>Phrases</button>
+    <button type="button" role="tab" data-view="settings" aria-selected="false"><svg class="i"><use href="#i-gear"/></svg>Settings</button>
+  </nav>
+</div>
+
+<!-- First-run setup -->
+<div id="setup" hidden>
+  <div class="inner">
+    <h1>Chào</h1>
+    <p class="lede">A Vietnamese ⇄ English voice translator that runs entirely on your phone. Set it up once on Wi-Fi, then it works with no signal.</p>
+
+    <h2>About you</h2>
+    <div class="set">
+      <span class="lbl">When talking to someone younger, I call myself</span>
+      <div class="seg" data-setting="myGender"><button type="button" data-v="m">anh (man)</button><button type="button" data-v="f">chị (woman)</button><button type="button" data-v="n">tôi</button></div>
+    </div>
+    <div class="set">
+      <span class="lbl">Where are you going first?</span>
+      <div class="seg" data-setting="region"><button type="button" data-v="n">North · Hà Nội</button><button type="button" data-v="s">South · Sài Gòn</button></div>
+    </div>
+
+    <h2>Download for offline use</h2>
+    <p class="help">Everything stays on your phone. Use Wi-Fi — about 365 MB for Vietnamese plus speaking English.</p>
+    <div id="setupPacks"></div>
+
+    <h2>Your phone’s voices</h2>
+    <div id="setupVoice"></div>
+
+    <div class="actions" style="margin-top:22px">
+      <button id="setupGo" class="btn stool" type="button">Download and continue</button>
+      <button id="setupSkip" class="btn alt" type="button">Skip for now</button>
+    </div>
+    <p id="setupMsg" class="help"></p>
+  </div>
+</div>
+
+<!-- Show to shopkeeper -->
+<div id="show" hidden role="dialog" aria-modal="true" aria-label="Show to shopkeeper">
+  <div class="face"><p class="vi" id="showVi" lang="vi"></p><p class="en" id="showEn"></p></div>
+  <div class="bar2">
+    <button type="button" id="showFlip"><svg class="i"><use href="#i-flip"/></svg>Flip</button>
+    <button type="button" id="showPlay" class="solid"><svg class="i"><use href="#i-play"/></svg>Play</button>
+    <button type="button" id="showClose"><svg class="i"><use href="#i-x"/></svg>Close</button>
+  </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
